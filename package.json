@@ -1,0 +1,5 @@
+{
+  "name": "sandbox-plugin",
+  "ethereumSandboxPlugin": "plugin1",
+  "main": "plugin.js"
+}
