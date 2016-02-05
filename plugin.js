@@ -24,6 +24,14 @@ var Plugin = {
     this.sandbox = services.sandbox;
     this.compiler = services.compiler;
     this.loadContract();
+    services.sandbox.on('stop', function(sandbox) {
+      // clear something
+    });
+    services.sandbox.onLog({
+      address: '0x054c0d72de17a9ae859fd0a4d99cfd1b02960081'
+    }, function(log) {
+      console.log('got log from ' + log.address);
+    });
     return this;
   },
   loadContract: function() {
