@@ -1,4 +1,5 @@
 var async = require('async');
+var BigNumber = require('bignumber.js');
 
 var source = '\
 contract FromPlugin { \
@@ -28,12 +29,18 @@ var Plugin = {
   loadContract: function() {
     this.compiler.compile(source, (function(err, result) {
       if (err) return console.log(err);
+
+      var address = '0x054c0d72de17a9ae859fd0a4d99cfd1b02960081';
+      var details = {
+        balance: new BigNumber('100000000000000000000'),
+        runCode: {
+          name: 'FromPlugin',
+          binary: result.FromPlugin.code,
+          abi: result.FromPlugin.info.abiDefinition
+        }
+      };
       
-      this.sandbox.createAccount({
-        address: '0x054c0d72de17a9ae859fd0a4d99cfd1b02960081',
-        balance: 10000000000000000000000,
-        runCode: result.FromPlugin.code
-      }, function(err) {
+      this.sandbox.createAccount(details, address, function(err) {
         if (err) console.error(err);
       });
     }).bind(this));

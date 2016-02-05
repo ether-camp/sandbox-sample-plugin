@@ -1,5 +1,5 @@
 {
-  "name": "sandbox-plugin",
-  "ethereumSandboxPlugin": "plugin1",
+  "name": "sandbox-sample-plugin",
+  "ethereumSandboxPlugin": "sample",
   "main": "plugin.js"
 }
