@@ -13,17 +13,18 @@ contract FromPlugin { \
 ';
 
 module.exports.create = function(events) {
-  events.on('sandboxStart', function(services) {
-    Object.create(Plugin).init(services);
+  events.on('sandboxStart', function(services, api) {
+    Object.create(Plugin).init(services, api);
   });
   return {};
 };
 
 var Plugin = {
-  init: function(services) {
+  init: function(services, api) {
     this.sandbox = services.sandbox;
     this.compiler = services.compiler;
     this.loadContract();
+    
     services.sandbox.on('stop', function(sandbox) {
       // clear something
     });
@@ -32,6 +33,30 @@ var Plugin = {
     }, function(log) {
       console.log('got log from ' + log.address);
     });
+
+    // add json rpc calls: sample_sum, sample_echo
+    api['sample'] = function(services) {
+      return {
+        sum: {
+          args: [
+            { type: 'number' },
+            { type: 'number' }
+          ],
+          handler: function(num1, num2, cb) {
+            cb(null, num1.plus(num2));
+          }
+        },
+        echo: {
+          args: [
+            { type: 'string' }
+          ],
+          handler: function(str, cb) {
+            cb(null, str);
+          }
+        }
+      };
+    };
+    
     return this;
   },
   loadContract: function() {
