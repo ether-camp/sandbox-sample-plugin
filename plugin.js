@@ -1,5 +1,11 @@
 var async = require('async');
 var BigNumber = require('bignumber.js');
+var SHA3Hash = require('sha3').SHA3Hash;
+
+var account = {
+  address: '0x054c0d72de17a9ae859fd0a4d99cfd1b02960081',
+  seed: 'sandbox-plugin'
+};
 
 var source = '\
 contract FromPlugin { \
@@ -28,13 +34,11 @@ var Plugin = {
     services.sandbox.on('stop', function(sandbox) {
       // clear something
     });
-    services.sandbox.onLog({
-      address: '0x054c0d72de17a9ae859fd0a4d99cfd1b02960081'
-    }, function(log) {
+    services.sandbox.onLog({ address: account.address  }, function(log) {
       console.log('got log from ' + log.address);
     });
 
-    // add json rpc calls: sample_sum, sample_echo
+    // add json rpc calls: sample_sum, sample_echo, sample_doSome
     api['sample'] = function(services) {
       return {
         sum: {
@@ -53,6 +57,18 @@ var Plugin = {
           handler: function(str, cb) {
             cb(null, str);
           }
+        },
+        doSome: {
+          args: [],
+          handler: function(cb) {
+            services.sandbox.sendTx({
+              from: account.address,
+              to: '0x054c0d72de17a9ae859fd0a4d99cfd1b02961337',
+              value: new BigNumber(13371337),
+              gasLimit: new BigNumber(1000),
+              gasPrice: services.sandbox.gasPrice
+            }, cb);
+          }
         }
       };
     };
@@ -63,7 +79,6 @@ var Plugin = {
     this.compiler.compile(source, (function(err, result) {
       if (err) return console.log(err);
 
-      var address = '0x054c0d72de17a9ae859fd0a4d99cfd1b02960081';
       var details = {
         balance: new BigNumber('100000000000000000000'),
         runCode: {
@@ -73,9 +88,16 @@ var Plugin = {
         }
       };
       
-      this.sandbox.createAccount(details, address, function(err) {
+      this.sandbox.createAccount(details, account.address, function(err) {
         if (err) console.error(err);
       });
+      this.sandbox.addAccount(account.address, sha3(account.seed));
     }).bind(this));
   }
+};
+
+function sha3(str) {
+  var sha = new SHA3Hash(256);
+  sha.update(str);
+  return '0x' + sha.digest('hex');
 };
