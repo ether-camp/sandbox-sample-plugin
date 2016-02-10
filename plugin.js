@@ -19,8 +19,10 @@ contract FromPlugin { \
 ';
 
 module.exports.create = function(events) {
-  events.on('sandboxStart', function(services, api) {
-    Object.create(Plugin).init(services, api);
+  events.on('sandboxStart', function(config, services, api) {
+    if (config.plugins.hasOwnProperty('sample')) {
+      Object.create(Plugin).init(services, api);
+    }
   });
   return {};
 };
